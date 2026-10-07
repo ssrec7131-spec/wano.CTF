@@ -108,4 +108,10 @@ CATEGORY_SEED: list[dict[str, str]] = [
         "icon": "Puzzle",
         "description": "Steganography, esoteric languages and everything in between.",
     },
+    {
+        "slug": "pwn",
+        "name": "Binary Exploitation",
+        "icon": "Cpu",
+        "description": "Stack overflows, heap corruption, ROP chains and memory exploitation.",
+    },
 ]

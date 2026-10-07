@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     db_max_overflow: int = 20
     db_echo: bool = False
 
+    # ---------------- Turso / libSQL (optional) ----------------
+    turso_database_url: str = ""
+    turso_auth_token: str = ""
+
     # ---------------- Auth ----------------
     jwt_secret: str = "dev-insecure-jwt-secret-change-me"
     admin_jwt_secret: str = "dev-insecure-admin-jwt-secret-change-me"

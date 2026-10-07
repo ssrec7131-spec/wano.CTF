@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 // ─── Floating Ember Particles ───────────────────────────────────────────────
@@ -176,3 +176,227 @@ export const StarField: React.FC = () => {
     />
   );
 };
+
+// ─── Cinematic Video Background ──────────────────────────────────────────────
+export interface VideoBackgroundProps {
+  src?: string;
+  videos?: { id: number; label: string; src: string; desc: string }[];
+  className?: string;
+  opacity?: number;
+  showScanlines?: boolean;
+  showVignette?: boolean;
+  showGrid?: boolean;
+  showHudControls?: boolean;
+  autoCycle?: boolean;
+}
+
+const DEFAULT_VIDEOS = [
+  { id: 1, label: '01', src: '/vid1.mp4', desc: 'Warzone Sector Alpha' },
+  { id: 2, label: '02', src: '/vid2.mp4', desc: 'Poneglyph Vault Grid' },
+  { id: 3, label: '03', src: '/vid3.mp4', desc: 'Marine Recon Stream' },
+];
+
+export const VideoBackground: React.FC<VideoBackgroundProps> = ({
+  src,
+  videos = DEFAULT_VIDEOS,
+  className = '',
+  opacity = 1.0,
+  showScanlines = false,
+  showVignette = true,
+  showGrid = false,
+  showHudControls = true,
+  autoCycle = true,
+}) => {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isFading, setIsFading] = useState(false);
+  const [clarityLevel, setClarityLevel] = useState<number>(opacity);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const currentVideo = videos[activeIdx] || videos[0];
+  const videoSrc = src || currentVideo?.src || '/vid1.mp4';
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.load();
+    video.play().catch(() => setIsPlaying(false));
+  }, [videoSrc]);
+
+  const changeVideo = (newIdx: number) => {
+    if (newIdx === activeIdx) return;
+    setIsFading(true);
+    setTimeout(() => {
+      setActiveIdx(newIdx);
+      setIsFading(false);
+    }, 180);
+  };
+
+  const handleNext = () => {
+    const nextIdx = (activeIdx + 1) % videos.length;
+    changeVideo(nextIdx);
+  };
+
+  const handleEnded = () => {
+    if (autoCycle && videos.length > 1) {
+      handleNext();
+    }
+  };
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    const nextMuted = !videoRef.current.muted;
+    videoRef.current.muted = nextMuted;
+    setIsMuted(nextMuted);
+  };
+
+  const toggleClarity = () => {
+    if (clarityLevel >= 0.95) setClarityLevel(0.7);
+    else if (clarityLevel >= 0.65) setClarityLevel(0.45);
+    else setClarityLevel(1.0);
+  };
+
+  return (
+    <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}>
+      {/* HTML5 Background Video - Crystal Clear Presentation */}
+      <video
+        ref={videoRef}
+        key={videoSrc}
+        src={videoSrc}
+        autoPlay
+        loop={!autoCycle || videos.length <= 1}
+        muted
+        playsInline
+        preload="auto"
+        onEnded={handleEnded}
+        className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300 ${
+          isFading ? 'opacity-0' : ''
+        }`}
+        style={{
+          opacity: isFading ? 0 : clarityLevel,
+          filter: 'contrast(1.04) brightness(1.02)',
+        }}
+      />
+
+      {/* Cyberpunk Scanlines (optional & subtle) */}
+      {showScanlines && (
+        <div
+          className="pointer-events-none absolute inset-0 opacity-10 mix-blend-overlay"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.6) 2px, rgba(0, 0, 0, 0.6) 4px)',
+          }}
+        />
+      )}
+
+      {/* Tech Grid (optional) */}
+      {showGrid && (
+        <div
+          className="pointer-events-none absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(60,220,240,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(60,220,240,0.15) 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+      )}
+
+      {/* Subtle Perimeter Edge Vignette - Keeps center 80% completely clear */}
+      {showVignette && (
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse at center, transparent 72%, rgba(5,7,10,0.4) 95%, rgba(5,7,10,0.7) 100%)',
+          }}
+        />
+      )}
+
+      {/* Soft bottom edge blend into the next section */}
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/40 to-transparent" />
+
+      {/* Floating HUD controls for video switching, audio & playback */}
+      {showHudControls && (
+        <div className="pointer-events-auto absolute bottom-5 right-5 z-30 flex items-center gap-2 rounded-full border border-gold/40 bg-void/90 px-3.5 py-1.5 font-mono text-[11px] text-steel-200 shadow-[0_4px_20px_rgba(0,0,0,0.8)] backdrop-blur-md transition-all hover:border-gold">
+          {/* Feed Switcher Tabs (VID 01 / 02 / 03) */}
+          <div className="flex items-center gap-1 border-r border-steel-700/70 pr-2">
+            <span className="text-[10px] text-gold font-bold uppercase tracking-wider hidden sm:inline mr-1">
+              FEED:
+            </span>
+            {videos.map((item, idx) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => changeVideo(idx)}
+                className={`px-2 py-0.5 rounded transition-all font-bold text-[11px] ${
+                  activeIdx === idx
+                    ? 'bg-gold/30 text-gold border border-gold/70 shadow-[0_0_10px_rgba(229,169,60,0.6)]'
+                    : 'text-steel-400 hover:text-white hover:bg-steel-800/60'
+                }`}
+                title={`Switch to ${item.desc} (${item.src})`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Clarity toggle */}
+          <button
+            type="button"
+            onClick={toggleClarity}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-steel-800/60 transition-colors text-steel-300 hover:text-gold"
+            title="Toggle Video Brightness / Clarity"
+          >
+            <span className="text-[10px] text-gold/90 font-bold">
+              {clarityLevel >= 0.95 ? '🔆 100%' : clarityLevel >= 0.65 ? '🌤️ 70%' : '🌙 45%'}
+            </span>
+          </button>
+
+          <span className="text-steel-700">|</span>
+
+          {/* Play/Pause Toggle */}
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="flex items-center gap-1.5 transition-colors hover:text-gold focus:outline-none"
+            title={isPlaying ? 'Pause Background Video' : 'Resume Background Video'}
+          >
+            {isPlaying ? (
+              <span className="flex items-center gap-1 text-cyber-green font-semibold">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyber-green animate-ping" />
+                <span>LIVE</span>
+              </span>
+            ) : (
+              <span className="text-steel-500">PAUSED</span>
+            )}
+          </button>
+
+          <span className="text-steel-700">|</span>
+
+          {/* Audio Mute/Unmute Toggle */}
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="flex items-center gap-1 transition-colors hover:text-gold focus:outline-none"
+            title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            {isMuted ? '🔇 MUTE' : '🔊 AUDIO'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+

@@ -171,7 +171,7 @@ async def seed() -> None:
                 session.add(file_rec)
 
         await session.commit()
-        print("Successfully seeded all 20 WANO CTF Round 1 challenges!")
+        print(f"Successfully seeded all {len(ALL_ROUND_1_CHALLENGES)} WANO CTF Round 1 challenges!")
 
 
 if __name__ == "__main__":

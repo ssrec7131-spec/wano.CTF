@@ -40,3 +40,7 @@ backend/uploads/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ---------- Large media ----------
+*.mp4
+

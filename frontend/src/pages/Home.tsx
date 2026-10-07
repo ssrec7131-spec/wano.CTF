@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import {
@@ -26,15 +26,9 @@ import {
 } from '../components/warzone/ui';
 import {
   FloatingEmbers,
-  BinaryRain,
-  BloodMoonGlow,
-  ScanBeam,
-  StarField,
   AnimatedGrid,
+  VideoBackground,
 } from '../components/warzone/AnimatedBg';
-
-// Lazy-load 3D Grand Line Scene with Blood Moon, Galleon & Ocean
-const HeroScene = lazy(() => import('../components/warzone/HeroScene'));
 
 const GRAND_LINE_SECTORS = [
   { name: 'Web Security', island: 'Enies Lobby Port', slug: 'web', count: 6, points: 1250, desc: 'Bypass auth, SQLi, SSRF, IDOR & token forgery on marine web servers.' },
@@ -148,28 +142,22 @@ export const Home: React.FC = () => {
           mouseY.set((e.clientY - cy) / cy * 10);
         }}
       >
-        {/* Star field canvas */}
-        <StarField />
+        {/* Crystal Clear Animated Video Background (Multi-Feed: VID 1, VID 2, VID 3) */}
+        <VideoBackground
+          opacity={1.0}
+          showScanlines={false}
+          showVignette={true}
+          showGrid={false}
+          showHudControls={true}
+          autoCycle={true}
+        />
 
-        {/* 3D hero scene */}
-        <div className="absolute inset-0 pointer-events-none opacity-55 z-0">
-          <Suspense fallback={<div className="w-full h-full bg-background" />}>
-            <HeroScene className="w-full h-full" />
-          </Suspense>
-        </div>
-
-        {/* Animated ambient layers */}
-        <BloodMoonGlow />
+        {/* Subtle Ambient Floating Embers */}
         <FloatingEmbers />
-        <ScanBeam />
-        <BinaryRain />
 
-        {/* Atmospheric fog overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-void/40 via-void/55 to-background pointer-events-none z-10" />
-
-        {/* Hero content with parallax */}
+        {/* Hero content with parallax and glass clarity container */}
         <motion.div
-          className="relative z-20 max-w-5xl mx-auto text-center"
+          className="relative z-20 max-w-5xl mx-auto text-center backdrop-blur-[2px] bg-void/30 p-6 sm:p-10 rounded-3xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.7)]"
           style={{ x: springX, y: springY }}
         >
           {/* Status Badge */}
